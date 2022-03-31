@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 
-tf.setBackend('cpu')
+//tf.setBackend('cpu')
+//tf.setBackend('webgl')
 
 // Use a class to load a model from a file and run inference on an image.
 export class Generator {
