@@ -1,5 +1,5 @@
 <script>
-	import {Generator} from './tensorflow.js';
+	import {Generator} from './generator.js';
 
 	let generator = new Generator();
 	generator.loadModel('./models/SRWNN/model.json');

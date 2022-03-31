@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
+import { callbacks } from '@tensorflow/tfjs';
 
 //tf.setBackend('cpu')
 //tf.setBackend('webgl')
@@ -7,6 +8,13 @@ import * as tf from '@tensorflow/tfjs';
 export class Generator {
     constructor() {
         console.log("TF version: " + tf.version.tfjs);
+
+        // Spawn new web worker to run inference in the background.
+        /* this.worker = new Worker('inferenceWorker.js', { type: "module" });
+        this.worker.onmessage = function(message) {
+            console.log(message);
+        } */
+        
         this.isReady = false;
     }
 
@@ -38,7 +46,14 @@ export class Generator {
         }
         console.log("Running inference");
         console.log(this.image.shape);
-        var result = this.model.predict(this.image);
+
+        const result = this.model.predict(this.image);
+        /*this.worker.postMessage({
+            command: 'predict',
+            model: this.model,
+            image: this.image,
+        }); */
+        
         console.log(result.shape);
         console.log("Inference complete");
 
@@ -51,6 +66,9 @@ export class Generator {
         
         const canvasElement = document.getElementById(canvas);
         var twoxImage = tf.browser.toPixels(postProccesed, canvasElement);
+
+        result.dispose();
+        postProccesed.dispose();
 
         // TODO: dispose of tensors
         /* var twoxImage = tf.browser.toPixels(postProccesed, canvasElement).then(() => {
