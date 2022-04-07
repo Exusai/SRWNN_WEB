@@ -52,6 +52,10 @@ export class Generator {
         const canvasElement = document.getElementById(canvas);
         var twoxImage = tf.browser.toPixels(postProccesed, canvasElement);
 
+        // Dispose the tensor to release the memory.
+        postProccesed.dispose();
+        result.dispose();
+
         // TODO: dispose of tensors
         /* var twoxImage = tf.browser.toPixels(postProccesed, canvasElement).then(() => {
             postProccesed.dispose();

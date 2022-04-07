@@ -2,6 +2,7 @@
 	import {Generator} from './tensorflow.js';
 
 	let generator = new Generator();
+	//generator.loadModel('./models/SRWNN256/model.json');
 	generator.loadModel('./models/SRWNN/model.json');
 	//let promise = generator.loadModel('./models/SRWNN/model.json');
 
