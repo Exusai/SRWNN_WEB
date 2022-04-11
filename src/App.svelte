@@ -1,5 +1,9 @@
 <script>
-	import {Generator} from './tensorflow.js';
+	import { Generator } from './tensorflow.js';
+	import { Row, Col, Grid, Item } from 'svelte-layouts'
+	import { onMount } from 'svelte';
+
+	let isPageLoaded = false;
 
 	let generator = new Generator();
 	// Load model is only used for inference in the main thread
@@ -31,8 +35,10 @@
 		link.href = document.getElementById('imagePlaceholder').toDataURL()
 		link.click();
 	}
-	
 
+	onMount(() => {
+		isPageLoaded = true;
+	});
 </script>
 
 <svelte:head>
@@ -41,44 +47,56 @@
 </svelte:head>
 
 <main>
-	<h1>Welcome To!</h1>
-	{#if !generator.isReady}
-		<p>Model not loaded</p>
+	{#if isPageLoaded}
+		<h1>Free Super Resolution Online</h1>
+
+		<Row justifyContent="space-around">
+			
+			<div>
+				<div id="upload">
+					{#if image}
+						<img class="avatar" src="{image}" alt="d" />
+					{:else}
+						<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
+					{/if}
+
+					<input type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
+					<hr>
+					<button on:click={()=>{generator.loadImage(image);generator.generate("imagePlaceholder");}}>Process</button>
+
+				</div>
+			</div>
+
+			<div>
+				{#if !generator.isWorking}
+					<canvas id="imagePlaceholder"></canvas>
+				{:else}
+					<div>loading...</div>
+				{/if}
+				<hr>
+				<button on:click={()=>{downloadCanvas();}}>Download</button>
+			</div>
+		</Row> 
 	{:else}
-		<p>Generator Ready</p>
+		<div class="loader">Loading...</div>
 	{/if}
-
-	<h1>Upload Image</h1>
-	<div id="upload">
-		{#if image}
-			<img class="avatar" src="{image}" alt="d" />
-		{:else}
-			<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
-		{/if}
-		
-		<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{fileinput.click();}} />
-		<div class="chan" on:click={()=>{fileinput.click();}}>Choose Image</div>
-		<input style="display:none" type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
-	</div>
-
-	<h1>Process</h1>
-	<!-- <img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);}} /> -->
-	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(image);generator.generate("imagePlaceholder");}} />
-
-	<h1>Result</h1>
-	<canvas id="imagePlaceholder"></canvas>
-
-	<h1>Download the image</h1>
-	<button on:click={()=>{downloadCanvas();}}>Download</button>
-
 </main>
 
 <style>
+	:global(body) { 
+		margin: 0; 
+		padding: 0;
+		overflow: -moz-scrollbars-none;
+		scrollbar-width: none;
+		/* this will hide the scrollbar in internet explorers */
+		-ms-overflow-style: none;
+	}
+	
+
 	main {
 		text-align: center;
 		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
+		background-color: white;
 	}
 
 	h1 {
@@ -88,12 +106,6 @@
 		font-weight: 100;
 	}
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-
 	#upload{
 		display:flex;
 		align-items:center;
@@ -101,15 +113,28 @@
 		flex-flow:column;
 	}
 
-	.uploadBtn{
-		display:flex;
-		height:50px;
-		width:50px;
-		cursor:pointer;
-	}
 	.avatar{
 		display:flex;
 		height:200px;
 		width:200px;
+	}
+
+	canvas {
+		display: flex;
+		/* height: 75%;
+		width: 75; */
+		background-color: #f0f0f0;
+	}
+
+	.loader {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: grid;
+		place-items: center;
+		background-color: white;
+		z-index: 999;
 	}
 </style>

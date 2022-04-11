@@ -7,6 +7,7 @@ export class Generator {
     constructor() {
         console.log("TF version: " + tf.version.tfjs);
         this.isReady = true;
+        this.isWorking = false;
     }
 
     // Load model is only used for inference on the main thread.
@@ -19,6 +20,7 @@ export class Generator {
 
     loadImage(image) {
         console.log("Loading image");
+        this.isWorking = true;
         const onlyImage = new Image();
         onlyImage.crossOrigin = "anonymous";
         onlyImage.src = image;
@@ -58,6 +60,7 @@ export class Generator {
 
             const canvasElement = document.getElementById(canvas);
             var twoxImage = tf.browser.toPixels(imageUpscaled, canvasElement);
+            this.isWorking = false;
         });
         this.image.dispose();
 
