@@ -6,18 +6,32 @@
 	//generator.loadModel('./models/SRWNN256/model.json');
 	//generator.loadModel('./models/SRWNN/model.json');
 
-	let  avatar, fileinput;
+	let  image, fileinput, filename;
 	const onFileSelected =(e)=>{
-		let image = e.target.files[0];
+		let imageURL = e.target.files[0];
 		let reader = new FileReader();
-		reader.readAsDataURL(image);
+		reader.readAsDataURL(imageURL);
 		reader.onload = e => {
-			avatar = e.target.result
+			image = e.target.result
 		};
+		// get name from the file reader
+		filename = imageURL.name;
+		// remove the extension from the name
+		filename = filename.substring(0, filename.lastIndexOf('.'));
+		console.log(filename);
 		reader.onerror = e => {
 			console.log('Error uploading or selecting: ', e);
 		};
 	}
+
+	// Create a function that downloads the canvas as an image
+	const downloadCanvas = function(){
+		var link = document.createElement('a');
+		link.download = filename + '2x.png';
+		link.href = document.getElementById('imagePlaceholder').toDataURL()
+		link.click();
+	}
+	
 
 </script>
 
@@ -27,7 +41,7 @@
 </svelte:head>
 
 <main>
-	<h1>Hello weeb!</h1>
+	<h1>Welcome To!</h1>
 	{#if !generator.isReady}
 		<p>Model not loaded</p>
 	{:else}
@@ -36,8 +50,8 @@
 
 	<h1>Upload Image</h1>
 	<div id="upload">
-		{#if avatar}
-			<img class="avatar" src="{avatar}" alt="d" />
+		{#if image}
+			<img class="avatar" src="{image}" alt="d" />
 		{:else}
 			<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
 		{/if}
@@ -49,10 +63,13 @@
 
 	<h1>Process</h1>
 	<!-- <img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);}} /> -->
-	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);generator.generate("imagePlaceholder");}} />
+	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(image);generator.generate("imagePlaceholder");}} />
 
 	<h1>Result</h1>
 	<canvas id="imagePlaceholder"></canvas>
+
+	<h1>Download the image</h1>
+	<button on:click={()=>{downloadCanvas();}}>Download</button>
 
 </main>
 

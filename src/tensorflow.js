@@ -54,11 +54,11 @@ export class Generator {
             //console.log(data)
             var imageUpscaled = tf.tensor(data.image);
             imageUpscaled = tf.reshape(imageUpscaled, data.imageInfo.shape);
+            console.log(data.imageInfo.shape);
 
             const canvasElement = document.getElementById(canvas);
             var twoxImage = tf.browser.toPixels(imageUpscaled, canvasElement);
         });
-
         this.image.dispose();
 
         ///* INFERENCE ON MAIN THREAD *///
