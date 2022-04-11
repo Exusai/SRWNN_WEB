@@ -2,9 +2,9 @@
 	import {Generator} from './tensorflow.js';
 
 	let generator = new Generator();
+	// Load model is only used for inference in the main thread
 	//generator.loadModel('./models/SRWNN256/model.json');
-	generator.loadModel('./models/SRWNN/model.json');
-	//let promise = generator.loadModel('./models/SRWNN/model.json');
+	//generator.loadModel('./models/SRWNN/model.json');
 
 	let  avatar, fileinput;
 	const onFileSelected =(e)=>{
@@ -48,8 +48,8 @@
 	</div>
 
 	<h1>Process</h1>
-	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);}} />
-	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.generate("imagePlaceholder");}} />
+	<!-- <img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);}} /> -->
+	<img class="uploadBtn" src="https://static.thenounproject.com/png/625182-200.png" alt="" on:click={()=>{generator.loadImage(avatar);generator.generate("imagePlaceholder");}} />
 
 	<h1>Result</h1>
 	<canvas id="imagePlaceholder"></canvas>

@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+importScripts("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js");
 
 console.log("Running inference");
 console.log(this.image.shape);

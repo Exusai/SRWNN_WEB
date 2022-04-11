@@ -1,5 +1,4 @@
 import * as tf from '@tensorflow/tfjs';
-
 //tf.setBackend('cpu')
 //tf.setBackend('webgl')
 
@@ -7,9 +6,10 @@ import * as tf from '@tensorflow/tfjs';
 export class Generator {
     constructor() {
         console.log("TF version: " + tf.version.tfjs);
-        this.isReady = false;
+        this.isReady = true;
     }
 
+    // Load model is only used for inference on the main thread.
     async loadModel(modelPath) {
         console.log("Loading model from " + modelPath);
         this.model = await tf.loadLayersModel(modelPath);
@@ -28,17 +28,41 @@ export class Generator {
         this.image = this.image.toFloat();
         this.image = this.image.div(tf.scalar(127.5));
         this.image = this.image.sub(tf.scalar(1.0));
+        //console.log(this.image);
         console.log("Image loaded");
     }
 
     generate(canvas) {
         if (!this.isReady) {
-            console.log("Model not ready");
+            console.log("Not ready");
             return;
         }
         console.log("Running inference");
         console.log(this.image.shape);
-        var result = this.model.predict(this.image);
+        
+        const worker = new Worker('my_task.js');
+        worker.postMessage({
+            image: this.image.dataSync(),
+            imageInfo: this.image,
+            model: './models/SRWNN/model.json'
+            //model: './models/SRWNN255/model.json'
+        });
+
+        worker.addEventListener("message", (event) => {
+            // read and print out the incoming data
+            const data = event.data;
+            //console.log(data)
+            var imageUpscaled = tf.tensor(data.image);
+            imageUpscaled = tf.reshape(imageUpscaled, data.imageInfo.shape);
+
+            const canvasElement = document.getElementById(canvas);
+            var twoxImage = tf.browser.toPixels(imageUpscaled, canvasElement);
+        });
+
+        this.image.dispose();
+
+        ///* INFERENCE ON MAIN THREAD *///
+        /* var result = this.model.predict(this.image);
         console.log(result.shape);
         console.log("Inference complete");
 
@@ -46,7 +70,6 @@ export class Generator {
         postProccesed = postProccesed.div(tf.scalar(2));
         postProccesed = postProccesed.clipByValue(0, 1);
         postProccesed = postProccesed.squeeze();
-        
         console.log(postProccesed.shape);
         
         const canvasElement = document.getElementById(canvas);
@@ -54,14 +77,6 @@ export class Generator {
 
         // Dispose the tensor to release the memory.
         postProccesed.dispose();
-        result.dispose();
-
-        // TODO: dispose of tensors
-        /* var twoxImage = tf.browser.toPixels(postProccesed, canvasElement).then(() => {
-            postProccesed.dispose();
-            result.dispose();
-        }); */
-        
-        //return twoxImage;
+        result.dispose(); */
     }
 }
