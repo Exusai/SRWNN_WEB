@@ -1,11 +1,39 @@
 import * as tf from '@tensorflow/tfjs';
 //tf.setBackend('cpu')
 //tf.setBackend('webgl')
+const worker = new Worker('my_task.js');
+
 
 // Use a class to load a model from a file and run inference on an image.
 export class Generator {
     constructor() {
         console.log("TF version: " + tf.version.tfjs);
+
+        worker.addEventListener("message", (event) => {
+            // read and print out the incoming data
+            const data = event.data;
+            //console.log(data)
+            var imageUpscaled = tf.tensor(data.image);
+            imageUpscaled = tf.reshape(imageUpscaled, data.imageInfo.shape);
+            console.log(data.imageInfo.shape);
+    
+            /* const load = document.getElementById("togleload");
+            load.click(); */
+            const canvasElement = document.getElementById("imagePlaceholder");
+            tf.browser.toPixels(imageUpscaled, canvasElement).then(() => {
+                var btnDis = document.getElementById("processbuttonDis");
+                var btn = document.getElementById("processButton");
+                var loadmsg = document.getElementById("loadMsg");
+                canvasElement.style.display = "block";
+                btnDis.style.display = "none";
+                btn.style.display = "block";
+                loadmsg.style.display = "none";
+            });
+            this.image.dispose();
+            imageUpscaled.dispose();
+            //this.isWorking = false;
+        });
+
         this.isReady = true;
         this.isWorking = false;
     }
@@ -18,9 +46,18 @@ export class Generator {
         console.log("Model loaded");
     }
 
-    loadImage(image) {
+    async loadImage(image) {
+        //this.isWorking = true;
+        const canvasElement = document.getElementById("imagePlaceholder");
+        var btnDis = document.getElementById("processbuttonDis");
+        var btn = document.getElementById("processButton");
+        var loadmsg = document.getElementById("loadMsg");
+        canvasElement.style.display = "none";
+        btnDis.style.display = "block";
+        btn.style.display = "none";
+        loadmsg.style.display = "block";
+
         console.log("Loading image");
-        this.isWorking = true;
         const onlyImage = new Image();
         onlyImage.crossOrigin = "anonymous";
         onlyImage.src = image;
@@ -41,8 +78,9 @@ export class Generator {
         }
         console.log("Running inference");
         console.log(this.image.shape);
+
         
-        const worker = new Worker('my_task.js');
+        
         worker.postMessage({
             image: this.image.dataSync(),
             imageInfo: this.image,
@@ -50,20 +88,7 @@ export class Generator {
             //model: './models/SRWNN255/model.json'
         });
 
-        worker.addEventListener("message", (event) => {
-            // read and print out the incoming data
-            const data = event.data;
-            //console.log(data)
-            var imageUpscaled = tf.tensor(data.image);
-            imageUpscaled = tf.reshape(imageUpscaled, data.imageInfo.shape);
-            console.log(data.imageInfo.shape);
-
-            const canvasElement = document.getElementById(canvas);
-            var twoxImage = tf.browser.toPixels(imageUpscaled, canvasElement);
-            this.isWorking = false;
-        });
-        this.image.dispose();
-
+        
         ///* INFERENCE ON MAIN THREAD *///
         /* var result = this.model.predict(this.image);
         console.log(result.shape);

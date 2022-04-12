@@ -3,9 +3,14 @@
 	import { Row, Col, Grid, Item } from 'svelte-layouts'
 	import { onMount } from 'svelte';
 
+	onMount(() => {
+		isPageLoaded = true;
+	});
+
 	let isPageLoaded = false;
 
 	let generator = new Generator();
+	let loadingCanvas = false
 	// Load model is only used for inference in the main thread
 	//generator.loadModel('./models/SRWNN256/model.json');
 	//generator.loadModel('./models/SRWNN/model.json');
@@ -36,9 +41,7 @@
 		link.click();
 	}
 
-	onMount(() => {
-		isPageLoaded = true;
-	});
+	
 </script>
 
 <svelte:head>
@@ -51,7 +54,6 @@
 		<h1>Free Super Resolution Online</h1>
 
 		<Row justifyContent="space-around">
-			
 			<div>
 				<div id="upload">
 					{#if image}
@@ -61,18 +63,26 @@
 					{/if}
 
 					<input type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
+					<button id = "togleload" style="display:none" on:click={()=>{loadingCanvas = !loadingCanvas}}></button>
 					<hr>
-					<button on:click={()=>{generator.loadImage(image);generator.generate("imagePlaceholder");}}>Process</button>
-
+					<button id="processButton" on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
+					<button disabled style="display: none;" id="processbuttonDis">Processing...</button>
+					<!-- {#if !loadingCanvas }
+						<button on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
+					{:else}
+						<button disabled>Processing...</button>
+					{/if} -->
 				</div>
 			</div>
 
 			<div>
-				{#if !generator.isWorking}
+				<canvas id="imagePlaceholder"></canvas>
+				<div style="display: none;" id="loadMsg">Processing...</div>
+				<!-- {#if !loadingCanvas}
 					<canvas id="imagePlaceholder"></canvas>
 				{:else}
-					<div>loading...</div>
-				{/if}
+					<div>Processing...</div>
+				{/if} -->
 				<hr>
 				<button on:click={()=>{downloadCanvas();}}>Download</button>
 			</div>
@@ -120,10 +130,13 @@
 	}
 
 	canvas {
-		display: flex;
+		display: block;
 		/* height: 75%;
 		width: 75; */
 		background-color: #f0f0f0;
+		/* maximum width and height */
+		max-width: 100%;
+		max-height: 100%;
 	}
 
 	.loader {
