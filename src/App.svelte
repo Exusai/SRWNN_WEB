@@ -52,43 +52,50 @@
 <main>
 	{#if isPageLoaded}
 		<h1>Free Super Resolution Online</h1>
-
-		<Row justifyContent="space-around">
-			<div>
-				<div id="upload">
-					{#if image}
-						<img class="avatar" src="{image}" alt="d" />
-					{:else}
-						<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
-					{/if}
-
-					<input type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
-					<button id = "togleload" style="display:none" on:click={()=>{loadingCanvas = !loadingCanvas}}></button>
-					<hr>
-					<button id="processButton" on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
-					<button disabled style="display: none;" id="processbuttonDis">Processing...</button>
-					<!-- {#if !loadingCanvas }
-						<button on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
-					{:else}
-						<button disabled>Processing...</button>
-					{/if} -->
+		<section>
+			<Row justifyContent="space-around">
+				<div>
+					<div id="upload">
+						{#if image}
+							<img class="avatar" src="{image}" alt="d" />
+						{:else}
+							<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
+						{/if}
+						<hr>
+						<input type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
+						{#if image}
+							<button id="processButton" on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
+						{:else}
+							<button disabled>Please select an image first</button>
+						{/if}
+						
+						<button disabled style="display: none;" id="processbuttonDis">Processing...</button>
+						
+					</div>
 				</div>
-			</div>
-
-			<div>
-				<canvas id="imagePlaceholder"></canvas>
-				<div style="display: none;" id="loadMsg">Processing...</div>
-				<!-- {#if !loadingCanvas}
+	
+				<div>
 					<canvas id="imagePlaceholder"></canvas>
-				{:else}
-					<div>Processing...</div>
-				{/if} -->
-				<hr>
-				<button on:click={()=>{downloadCanvas();}}>Download</button>
-			</div>
-		</Row> 
+					<div style="display: none;" id="loadMsg">
+						<img src="/assets/Double Ring-1s-200px.svg" alt="">
+					</div>
+					<hr>
+					<button on:click={()=>{downloadCanvas();}}>Download</button>
+				</div>
+			</Row> 
+		</section>
+
+		<section>
+			<h1>about</h1>
+		</section>
+
+		<section>
+			<h1>try waifu2x</h1>
+		</section>
 	{:else}
-		<div class="loader">Loading...</div>
+		<div class="loader">
+			<img src="/assets/Double Ring-1s-200px.svg" alt="">
+		</div>
 	{/if}
 </main>
 
@@ -105,12 +112,12 @@
 
 	main {
 		text-align: center;
-		padding: 1em;
+		padding: 0;
 		background-color: white;
 	}
 
 	h1 {
-		color: #ff3e00;
+		color: #0EACED;
 		text-transform: uppercase;
 		font-size: 4em;
 		font-weight: 100;
@@ -149,5 +156,15 @@
 		place-items: center;
 		background-color: white;
 		z-index: 999;
+	}
+
+	section {
+		height: 100vh;
+		padding-top: 10px;
+		padding-left: 0;
+		padding-right: 0;
+		padding-bottom: 0;
+		margin: 0;
+		border: 0;
 	}
 </style>
