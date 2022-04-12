@@ -3,14 +3,10 @@
 	import { Row, Col, Grid, Item } from 'svelte-layouts'
 	import { onMount } from 'svelte';
 
-	onMount(() => {
-		isPageLoaded = true;
-	});
-
 	let isPageLoaded = false;
 
 	let generator = new Generator();
-	let loadingCanvas = false
+	
 	// Load model is only used for inference in the main thread
 	//generator.loadModel('./models/SRWNN256/model.json');
 	//generator.loadModel('./models/SRWNN/model.json');
@@ -34,13 +30,16 @@
 	}
 
 	// Create a function that downloads the canvas as an image
-	const downloadCanvas = function(){
+	const downloadCanvas = () => {
 		var link = document.createElement('a');
 		link.download = filename + '2x.png';
 		link.href = document.getElementById('imagePlaceholder').toDataURL()
 		link.click();
 	}
 
+	onMount(() => {
+		isPageLoaded = true;
+	});
 	
 </script>
 
@@ -53,18 +52,18 @@
 	{#if isPageLoaded}
 		<h1>Free Super Resolution Online</h1>
 		<section>
-			<Row justifyContent="space-around">
-				<div>
+			<Row>
+				<div class="left-col">
 					<div id="upload">
 						{#if image}
 							<img class="avatar" src="{image}" alt="d" />
 						{:else}
 							<img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
 						{/if}
-						<hr>
+						<br>
 						<input type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
 						{#if image}
-							<button id="processButton" on:click={()=>{loadingCanvas = true; generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
+							<button id="processButton" on:click={()=>{generator.loadImage(image); generator.generate("imagePlaceholder");}}>Process</button>
 						{:else}
 							<button disabled>Please select an image first</button>
 						{/if}
@@ -74,12 +73,12 @@
 					</div>
 				</div>
 	
-				<div>
+				<div class="right-col">
 					<canvas id="imagePlaceholder"></canvas>
 					<div style="display: none;" id="loadMsg">
 						<img src="/assets/Double Ring-1s-200px.svg" alt="">
 					</div>
-					<hr>
+					<br>
 					<button on:click={()=>{downloadCanvas();}}>Download</button>
 				</div>
 			</Row> 
@@ -93,7 +92,7 @@
 			<h1>try waifu2x</h1>
 		</section>
 	{:else}
-		<div class="loader">
+		<div class="loader" use:onMount>
 			<img src="/assets/Double Ring-1s-200px.svg" alt="">
 		</div>
 	{/if}
@@ -103,17 +102,27 @@
 	:global(body) { 
 		margin: 0; 
 		padding: 0;
-		overflow: -moz-scrollbars-none;
-		scrollbar-width: none;
-		/* this will hide the scrollbar in internet explorers */
-		-ms-overflow-style: none;
+		background-color: #343434;
+		overflow: overlay;
+		scroll-snap-align: center;
 	}
-	
+	:global(::-webkit-scrollbar) {
+		width: 10px;
+		height: 10px;
+	}
+
+	:global(::-webkit-scrollbar-thumb) {
+		background: rgba(90, 90, 90);
+	}
+
+	:global(::-webkit-scrollbar-track) {
+		background: rgba(0, 0, 0, 0.2);
+	}
 
 	main {
 		text-align: center;
 		padding: 0;
-		background-color: white;
+		background-color: #343434;
 	}
 
 	h1 {
@@ -121,6 +130,7 @@
 		text-transform: uppercase;
 		font-size: 4em;
 		font-weight: 100;
+		margin: 0;
 	}
 
 	#upload{
@@ -132,18 +142,34 @@
 
 	.avatar{
 		display:flex;
+		contain: inherit;
 		height:200px;
 		width:200px;
 	}
 
 	canvas {
 		display: block;
-		/* height: 75%;
-		width: 75; */
 		background-color: #f0f0f0;
 		/* maximum width and height */
-		max-width: 100%;
-		max-height: 100%;
+		max-width:85%;
+		max-height: 85%;
+	}
+
+	.right-col{
+		display:flex;
+		flex-flow:column;
+		align-items:center;
+		justify-content:center;
+		width: 70%;
+		border-left: #0EACED solid 1px;
+	}
+
+	.left-col{
+		display:flex;
+		flex-flow:column;
+		align-items:center;
+		justify-content:center;
+		width: 30%;
 	}
 
 	.loader {
